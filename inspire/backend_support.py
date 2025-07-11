@@ -1,6 +1,8 @@
 import json
 import os
 from .libs import common
+import sys
+sys.path.append("/data/workspace/ComfyUI")
 
 import folder_paths
 import nodes
@@ -462,6 +464,71 @@ class LoadDiffusionModelShared(nodes.UNETLoader):
         return None, cache_weak_hash(key)
 
 
+class LoadLoraShared(nodes.LoraLoaderModelOnly):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "model": ("MODEL",),
+                              "lora_name": (folder_paths.get_filename_list("loras")),
+                              "strength_model": ("FLOAT", {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01}),
+                              "key_opt": ("STRING", {"multiline": False, "placeholder": "If empty, use 'model_name' as the key."}),
+                              "mode": (['Auto', 'Override Cache', 'Read Only'],),
+                              }
+                }
+    RETURN_TYPES = ("MODEL", "STRING")
+    RETURN_NAMES = ("model", "cache key")
+
+    FUNCTION = "doit"
+
+    CATEGORY = "InspirePack/Backend"
+
+    def doit(self, model, lora_name, strength_model, key_opt, mode='Auto'):
+        if mode == 'Read Only':
+            if key_opt.strip() == '':
+                raise Exception("[LoadLoraShared] key_opt cannot be omit if mode is 'Read Only'")
+            key = key_opt.strip()
+        elif key_opt.strip() == '':
+            key = f"{lora_name}_{strength_model}"
+        else:
+            key = key_opt.strip()
+
+        if key not in cache or mode == 'Override Cache':
+            if strength_model == 0:
+                model_applied = model
+            else:
+                logging.info(f"[LoadLoraShared] Loading LoRA: {lora_name}")
+                # 获取 LoRA 文件的完整路径
+                #lora_path = folder_paths.get_full_path("loras", lora_name)
+                # 加载 LoRA 权重文件
+                logging.info(f"[Inspire Pack] Applying LoRA '{lora_name}' and caching to key '{key}'.")
+                model_applied = self.load_lora_model_only(model, lora_name, strength_model)[0]
+            update_cache(key, "diffusion", (False, model_applied))
+            logging.info(f"[Inspire Pack] LoadLoraShared: Lora '{lora_name}' is cached to '{key}'.")
+        else:
+            _, (_, model_applied) = cache[key]
+            logging.info(f"[Inspire Pack] LoadLoraShared: Cached Lora '{key}' is loaded. (Loading skip)")
+
+        return model_applied, key
+
+    @staticmethod
+    def IS_CHANGED(model_name, strength_model, key_opt, mode='Auto'):
+        if mode == 'Read Only':
+            if key_opt.strip() == '':
+                raise Exception("[LoadLoraShared] key_opt cannot be omit if mode is 'Read Only'")
+            key = key_opt.strip()
+        elif key_opt.strip() == '':
+            key = f"{model_name}_{strength_model}"
+        else:
+            key = key_opt.strip()
+
+        if mode == 'Read Only':
+            return None, cache_weak_hash(key)
+        elif mode == 'Override Cache':
+            return model_name, key
+
+        return None, cache_weak_hash(key)
+
+
+
 class LoadTextEncoderShared:
     @classmethod
     def INPUT_TYPES(s):
@@ -733,6 +800,7 @@ NODE_CLASS_MAPPINGS = {
     "ShowCachedInfo //Inspire": ShowCachedInfo,
     "CheckpointLoaderSimpleShared //Inspire": CheckpointLoaderSimpleShared,
     "LoadDiffusionModelShared //Inspire": LoadDiffusionModelShared,
+    "LoadLoraShared //Inspire": LoadLoraShared,
     "LoadTextEncoderShared //Inspire": LoadTextEncoderShared,
     "StableCascade_CheckpointLoader //Inspire": StableCascade_CheckpointLoader,
     "IsCached //Inspire": IsCached,
@@ -751,6 +819,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ShowCachedInfo //Inspire": "Show Cached Info (Inspire)",
     "CheckpointLoaderSimpleShared //Inspire": "Shared Checkpoint Loader (Inspire)",
     "LoadDiffusionModelShared //Inspire": "Shared Diffusion Model Loader (Inspire)",
+    "LoadLoraShared //Inspire": "Shared Lora Loader",
     "LoadTextEncoderShared //Inspire": "Shared Text Encoder Loader (Inspire)",
     "StableCascade_CheckpointLoader //Inspire": "Stable Cascade Checkpoint Loader (Inspire)",
     "IsCached //Inspire": "Is Cached (Inspire)",
