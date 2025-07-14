@@ -9,11 +9,9 @@ from . import backend_support
 from .libs import common
 from .inspire_workflow_trigger import queue_workflow_async
 import logging
-import threading
 import asyncio
-import traceback
-import json
 from .backend_support import IsCached
+from .backend_support import cache
 
 max_seed = 2**32 - 1
 
@@ -58,7 +56,7 @@ async def cache_determine(request):
     #cache_text = cache_refresh(request).text
     keys_not_exist_list = []
     for key in keys:
-        if not IsCached.doit(key, 1):
+        if key not in cache:
             keys_not_exist_list.append(key)
     if not keys_not_exist_list:
         keys_not_exist_list.append(key)
@@ -67,7 +65,7 @@ async def cache_determine(request):
             
         # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
         loop.run_in_executor(None, queue_workflow_async)
-                
+        
         # 4. 立刻返回响应，告诉用户任务已在后台开始
         print("API 响应：已触发后台缓存工作流。")
         cache_str = ','.join([str(item) for item in keys_not_exist_list])
