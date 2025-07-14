@@ -7,8 +7,9 @@ from . import prompt_support
 from aiohttp import web
 from . import backend_support
 from .libs import common
+from .inspire_workflow_trigger import queue_workflow
 import logging
-
+import requests
 
 max_seed = 2**32 - 1
 
@@ -52,7 +53,8 @@ def cache_determine(request):
     if key in cache_text:
         return web.Response(text="True",status=200)
     else:
-        return web.Response(text="False",status=200)
+        queue_workflow()
+        return web.Response(text="未查询到缓存，已经自动执行缓存模型工作流。",status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
