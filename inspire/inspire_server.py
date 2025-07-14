@@ -48,13 +48,13 @@ def cache_refresh(request):
 
 #用于判断缓存是否存在
 @server.PromptServer.instance.routes.get("/inspire/cache/determine")
-async def cache_determine(request):
+def cache_determine(request):
     key = "flux_vae"
     cache_text = backend_support.ShowCachedInfo.get_data()
     if key in cache_text:
-        return web.Response(text="True",status=200)
+        return web.Response(text="缓存已加载。",status=200)
     else:
-        asyncio.create_task(queue_workflow())
+        queue_workflow
         return web.Response(text="未查询到缓存，已经自动执行缓存模型工作流。",status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
