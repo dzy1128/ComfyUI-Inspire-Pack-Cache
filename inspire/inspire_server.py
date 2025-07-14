@@ -55,8 +55,9 @@ async def cache_determine(request):
     #cache_text = backend_support.ShowCachedInfo.get_data() 
     #cache_text = cache_refresh(request).text
     keys_not_exist_list = []
+    isc = IsCached()
     for key in keys:
-        if not IsCached.doit(key,None):
+        if not isc.doit(key,None):
             keys_not_exist_list.append(key)
     if keys_not_exist_list :
         keys_not_exist_list.append(key)
