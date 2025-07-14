@@ -42,7 +42,7 @@ def queue_workflow():
         with open(WORKFLOW_API_FILE, 'r') as f:
             workflow = json.load(f)
     except FileNotFoundError:
-        print(f"错误：{p}未找到工作流文件 {WORKFLOW_API_FILE}" + p)
+        print(f"错误：未找到工作流文件 {WORKFLOW_API_FILE}")
         return
 
     # 将工作流添加到队列
@@ -127,6 +127,7 @@ def queue_workflow_simple():
 
 #comfyui内部原生方法
 def queue_workflow_internally():
+    p = os.getcwd()
     """直接使用 ComfyUI 内部函数将工作流加入队列"""
     try:
         # 1. 加载工作流文件
@@ -156,7 +157,7 @@ def queue_workflow_internally():
         return True, f"工作流已成功加入队列，ID: {prompt_id}"
 
     except FileNotFoundError:
-        error_msg = f"错误：未找到工作流文件 {WORKFLOW_API_FILE}"
+        error_msg = f"错误：{p},未找到工作流文件 {WORKFLOW_API_FILE}"
         print(error_msg)
         return False, error_msg
     except Exception as e:
