@@ -54,15 +54,11 @@ async def cache_determine(request):
     if key in cache_text:
         return web.Response(text="缓存已加载。",status=200)
     else:
-        # 2. 获取当前的事件循环
-        loop = asyncio.get_event_loop()
-        
-        # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
-        loop.run_in_executor(None, queue_workflow)
-        
-        # 4. 立刻返回响应，告诉用户任务已在后台开始
-        print("API 响应：已触发后台缓存工作流。")
-        return web.Response(text="未检测到缓存，已自动执行缓存模型工作流。",status=200)
+        success, message = queue_workflow_internally()
+        if success:
+            return web.Response(text=f"未查询到缓存，已经自动执行缓存模型工作流。{message}", status=200)
+        else:
+            return web.Response(text=f"执行缓存工作流失败: {message}", status=500)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
