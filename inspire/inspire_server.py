@@ -12,6 +12,7 @@ import logging
 import threading
 import asyncio
 import traceback
+import json
 from .backend_support import cache
 
 max_seed = 2**32 - 1
@@ -56,8 +57,9 @@ async def cache_determine(request):
     # 假设 backend_support.ShowCachedInfo.get_data() 是非阻塞的
     #cache_text = backend_support.ShowCachedInfo.get_data() 
     #cache_text = cache_refresh(request).text
-    print(f"cache_items:{cache.items()}")
-    if key in cache.items():
+    cache_str = json.dumps(cache.items(), ensure_ascii=False)
+    print("缓存信息：{cache_str}")
+    if key in cache_str :
         return web.Response(text="缓存已加载。", status=200)
     else:
         # 2. 获取当前的事件循环
