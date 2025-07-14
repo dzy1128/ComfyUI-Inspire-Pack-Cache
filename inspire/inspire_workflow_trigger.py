@@ -115,7 +115,7 @@ def queue_workflow_async():
     def run_workflow():
         try:
             print("开始执行缓存工作流...")
-            queue_workflow()
+            queue_workflow_with_debug()
             print("缓存工作流执行完成")
         except Exception as e:
             print(f"执行缓存工作流时出错: {e}")
