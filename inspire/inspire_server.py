@@ -56,6 +56,7 @@ async def cache_determine(request):
     # 假设 backend_support.ShowCachedInfo.get_data() 是非阻塞的
     #cache_text = backend_support.ShowCachedInfo.get_data() 
     #cache_text = cache_refresh(request).text
+    print(f"cache_items:{cache.items()}")
     if key in cache.items():
         return web.Response(text="缓存已加载。", status=200)
     else:
