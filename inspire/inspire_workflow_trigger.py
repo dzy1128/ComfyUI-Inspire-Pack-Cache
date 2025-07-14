@@ -11,7 +11,7 @@ import traceback
 ip_addr = requests.get('https://ifconfig.me/ip').text.strip()
 SERVER_ADDRESS = "27.148.182.150" + ":8188"
 # 你的工作流 API JSON 文件路径
-WORKFLOW_API_FILE = "user/default/workflows/缓存模型.json"
+WORKFLOW_API_FILE = "user/default/workflows/cacheInfo.json"
 
 
 def queue_prompt(prompt_workflow):
@@ -44,7 +44,7 @@ def queue_workflow():
         with open(WORKFLOW_API_FILE, 'r') as f:
             workflow = json.load(f)
     except FileNotFoundError:
-        print(f"错误：未找到工作流文件 {WORKFLOW_API_FILE}")
+        print(f"错误：{p}未找到工作流文件 {WORKFLOW_API_FILE}")
         return
 
     # 将工作流添加到队列
