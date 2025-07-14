@@ -11,7 +11,7 @@ import traceback
 ip_addr = requests.get('https://ifconfig.me/ip').text.strip()
 SERVER_ADDRESS = "27.148.182.150" + ":8188"
 # 你的工作流 API JSON 文件路径
-WORKFLOW_API_FILE = "user/default/workflows/cacheInfo.json"
+WORKFLOW_API_FILE = "user/default/workflows/api_workflows/cacheInfo.json"
 
 
 def queue_prompt(prompt_workflow):
