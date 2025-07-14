@@ -7,7 +7,7 @@ from . import prompt_support
 from aiohttp import web
 from . import backend_support
 from .libs import common
-from .inspire_workflow_trigger import queue_workflow_async
+from .inspire_workflow_trigger import queue_workflow
 import logging
 import threading
 import asyncio
@@ -50,22 +50,22 @@ def cache_refresh(request):
 #用于判断缓存是否存在
 @server.PromptServer.instance.routes.get("/inspire/cache/determine")
 async def cache_determine(request):
-    try:
-        print("=== 进入 cache_determine 接口 ===")
-        key = "flux_vae"
-        cache_text = backend_support.ShowCachedInfo.get_data()
-        print(f"缓存检查结果: {key in cache_text}")
+    key = "flux_vae"
+    # 假设 backend_support.ShowCachedInfo.get_data() 是非阻塞的
+    cache_text = backend_support.ShowCachedInfo.get_data() 
+    
+    if key in cache_text:
+        return web.Response(text="缓存已加载。", status=200)
+    else:
+        # 2. 获取当前的事件循环
+        loop = asyncio.get_event_loop()
         
-        if key in cache_text:
-            return web.Response(text="缓存已加载。", status=200)
-        else:
-            print("开始执行异步工作流...")
-            queue_workflow_async()
-            return web.Response(text="未查询到缓存，正在后台执行缓存模型工作流。", status=200)
-    except Exception as e:
-        print(f"cache_determine 接口出错: {e}")
-        print(f"异常详情: {traceback.format_exc()}")
-        return web.Response(text=f"处理请求失败: {str(e)}", status=500)
+        # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
+        loop.run_in_executor(None, queue_workflow)
+        
+        # 4. 立刻返回响应，告诉用户任务已在后台开始
+        print("API 响应：已触发后台缓存工作流。")
+        return web.Response(text="未查询到缓存，已经自动在后台执行缓存模型工作流。", status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
