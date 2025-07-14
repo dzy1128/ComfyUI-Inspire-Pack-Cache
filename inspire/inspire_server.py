@@ -52,7 +52,8 @@ def cache_refresh(request):
 async def cache_determine(request):
     key = "flux_vae"
     # 假设 backend_support.ShowCachedInfo.get_data() 是非阻塞的
-    cache_text = backend_support.ShowCachedInfo.get_data() 
+    #cache_text = backend_support.ShowCachedInfo.get_data() 
+    cache_text = cache_refresh()
     
     if key in cache_text:
         return web.Response(text="缓存已加载。", status=200)
