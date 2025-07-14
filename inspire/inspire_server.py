@@ -10,7 +10,7 @@ from .libs import common
 from .inspire_workflow_trigger import queue_workflow
 import logging
 import threading
-
+import asyncio
 
 max_seed = 2**32 - 1
 
@@ -54,7 +54,7 @@ async def cache_determine(request):
     if key in cache_text:
         return web.Response(text="True",status=200)
     else:
-        await queue_workflow()
+        asyncio.create_task(queue_workflow())
         return web.Response(text="未查询到缓存，已经自动执行缓存模型工作流。",status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
