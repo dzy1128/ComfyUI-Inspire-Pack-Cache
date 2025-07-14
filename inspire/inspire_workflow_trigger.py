@@ -8,7 +8,7 @@ import server
 ip_addr = requests.get('https://ifconfig.me/ip').text.strip()
 SERVER_ADDRESS = ip_addr + ":8188"
 # 你的工作流 API JSON 文件路径
-WORKFLOW_API_FILE = "workflows/缓存模型.json"
+WORKFLOW_API_FILE = "./workflows/缓存模型.json"
 
 def queue_prompt(prompt_workflow):
     """向 ComfyUI API 发送请求"""
