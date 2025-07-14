@@ -50,9 +50,9 @@ def cache_determine(request):
     key = "flux_vae"
     cache_text = backend_support.ShowCachedInfo.get_data()
     if key in cache_text:
-        return web.Response(text=True,status=200)
+        return web.Response(text="True",status=200)
     else:
-        return web.Response(text=False,status=200)
+        return web.Response(text="False",status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
