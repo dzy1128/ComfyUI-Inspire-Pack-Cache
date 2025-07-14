@@ -51,13 +51,12 @@ def cache_refresh(request):
 @server.PromptServer.instance.routes.get("/inspire/cache/determine")
 async def cache_determine(request):
     keys = ["flux_vae", "pulid_eva_clip", "pulid_face_analysis", "pulid_model"]
-    # 假设 backend_support.ShowCachedInfo.get_data() 是非阻塞的
-    #cache_text = backend_support.ShowCachedInfo.get_data() 
-    #cache_text = cache_refresh(request).text
     keys_not_exist_list = []
     isc = IsCached()
     for key in keys:
-        if not isc.doit(key,None) :
+        c = isc.doit(key,None)
+        print(c)
+        if not c :
             keys_not_exist_list.append(key)
     cache_str = ','.join([str(item) for item in keys_not_exist_list])
     print(f"缓存信息：{cache_str}")
