@@ -102,3 +102,20 @@ def queue_workflow():
     else:
         print("将工作流加入队列失败。")
 
+def queue_workflow_simple():
+    """简化版的工作流启动函数，只负责将工作流加入队列"""
+    try:
+        # 加载工作流 API 文件
+        with open(WORKFLOW_API_FILE, 'r') as f:
+            workflow = json.load(f)
+        
+        # 将工作流添加到队列
+        p = {"prompt": workflow}
+        data = json.dumps(p).encode('utf-8')
+        req = requests.post(f"http://{SERVER_ADDRESS}/prompt", data=data)
+        req.raise_for_status()
+        print(f"成功将工作流加入队列: {req.json().get('prompt_id')}")
+        return True
+    except Exception as e:
+        print(f"启动工作流出错: {e}")
+        return False
