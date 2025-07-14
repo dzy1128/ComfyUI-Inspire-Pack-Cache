@@ -13,7 +13,7 @@ import threading
 import asyncio
 import traceback
 import json
-from .backend_support import cache
+from .backend_support import IsCached
 
 max_seed = 2**32 - 1
 
@@ -52,25 +52,28 @@ def cache_refresh(request):
 #用于判断缓存是否存在
 @server.PromptServer.instance.routes.get("/inspire/cache/determine")
 async def cache_determine(request):
-    key = "flux_vae"
-    is_cached= True
+    keys = ["flux_vae", "pulid_eva_clip", "pulid_face_analysis", "pulid_model"]
     # 假设 backend_support.ShowCachedInfo.get_data() 是非阻塞的
     #cache_text = backend_support.ShowCachedInfo.get_data() 
     #cache_text = cache_refresh(request).text
-    cache_str = str(cache.items())
-    print(f"缓存信息：{cache_str}")
-    if key in cache_str :
-        return web.Response(text="缓存已加载。", status=200)
-    else:
+    keys_not_exist_list = []
+    for key in keys:
+        if not IsCached(key):
+            keys_not_exist_list.append(key)
+    if not keys_not_exist_list:
+        keys_not_exist_list.append(key)
         # 2. 获取当前的事件循环
         loop = asyncio.get_event_loop()
             
         # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
         loop.run_in_executor(None, queue_workflow_async)
-            
+                
         # 4. 立刻返回响应，告诉用户任务已在后台开始
         print("API 响应：已触发后台缓存工作流。")
-        return web.Response(text="未查询到缓存，已经自动在后台执行缓存模型工作流。", status=200)
+        cache_str = ','.join([str(item) for item in keys_not_exist_list])
+        return web.Response(text=f"未查询到缓存{cache_str}，已经自动在后台执行缓存模型工作流。", status=200)
+    else:
+        return web.Response(text="缓存已加载。", status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
