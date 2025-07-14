@@ -61,7 +61,7 @@ async def cache_determine(request):
             keys_not_exist_list.append(key)
     cache_str = ','.join([str(item) for item in keys_not_exist_list])
     print(f"缓存信息：{cache_str}")
-    if keys_not_exist_list :
+    if len(keys_not_exist_list) != 0 or keys_not_exist_list is not None or keys_not_exist_list != []:
         keys_not_exist_list.append(key)
         # 2. 获取当前的事件循环
         loop = asyncio.get_event_loop()
