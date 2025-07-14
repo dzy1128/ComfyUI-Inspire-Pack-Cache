@@ -7,7 +7,7 @@ from . import prompt_support
 from aiohttp import web
 from . import backend_support
 from .libs import common
-from .inspire_workflow_trigger import queue_workflow,queue_workflow_internally
+from .inspire_workflow_trigger import queue_workflow_async
 import logging
 import threading
 import asyncio
@@ -54,11 +54,8 @@ async def cache_determine(request):
     if key in cache_text:
         return web.Response(text="缓存已加载。",status=200)
     else:
-        success, message = queue_workflow_internally()
-        if success:
-            return web.Response(text=f"未查询到缓存，已经自动执行缓存模型工作流。{message}", status=200)
-        else:
-            return web.Response(text=f"执行缓存工作流失败: {message}", status=500)
+        queue_workflow_async()
+        return web.Response(text="未检测到缓存，已自动执行工作流",status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):

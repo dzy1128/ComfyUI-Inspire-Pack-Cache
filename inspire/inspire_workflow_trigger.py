@@ -4,6 +4,7 @@ import time
 import uuid
 import server
 import os
+import threading
 
 # ComfyUI 服务器地址
 ip_addr = requests.get('https://ifconfig.me/ip').text.strip()
@@ -107,23 +108,19 @@ def queue_workflow():
     else:
         print("将工作流加入队列失败。")
 
-def queue_workflow_simple():
-    """简化版的工作流启动函数，只负责将工作流加入队列"""
-    try:
-        # 加载工作流 API 文件
-        with open(WORKFLOW_API_FILE, 'r') as f:
-            workflow = json.load(f)
-        
-        # 将工作流添加到队列
-        p = {"prompt": workflow}
-        data = json.dumps(p).encode('utf-8')
-        req = requests.post(f"http://{SERVER_ADDRESS}/prompt", data=data)
-        req.raise_for_status()
-        print(f"成功将工作流加入队列: {req.json().get('prompt_id')}")
-        return True
-    except Exception as e:
-        print(f"启动工作流出错: {e}")
-        return False
+# 将 queue_workflow 修改为异步执行
+def queue_workflow_async():
+    """异步执行工作流"""
+    def run_workflow():
+        try:
+            print("开始执行缓存工作流...")
+            queue_workflow()
+            print("缓存工作流执行完成")
+        except Exception as e:
+            print(f"执行缓存工作流时出错: {e}")
+    # 在新线程中执行
+    thread = threading.Thread(target=run_workflow, daemon=True)
+    thread.start()
 
 #comfyui内部原生方法
 def queue_workflow_internally():
