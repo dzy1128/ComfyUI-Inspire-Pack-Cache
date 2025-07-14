@@ -54,8 +54,7 @@ def cache_determine(request):
     if key in cache_text:
         return web.Response(text="True",status=200)
     else:
-        # 在后台线程中执行工作流
-        threading.Thread(target=queue_workflow, daemon=True).start()
+        queue_workflow()
         return web.Response(text="未查询到缓存，已经自动执行缓存模型工作流。",status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")

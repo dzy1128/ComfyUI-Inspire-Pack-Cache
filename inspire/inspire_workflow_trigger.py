@@ -20,7 +20,7 @@ def queue_prompt(prompt_workflow):
         print(f"Error connecting to ComfyUI: {e}")
         return None
 
-def queue_workflow():
+async def queue_workflow():
     # 等待 ComfyUI 服务器启动
     print("等待 ComfyUI 服务器准备就绪...")
     while True:
