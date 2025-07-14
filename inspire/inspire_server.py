@@ -7,7 +7,7 @@ from . import prompt_support
 from aiohttp import web
 from . import backend_support
 from .libs import common
-from .inspire_workflow_trigger import queue_workflow
+from .inspire_workflow_trigger import queue_workflow_async
 import logging
 import threading
 import asyncio
@@ -61,7 +61,7 @@ async def cache_determine(request):
         loop = asyncio.get_event_loop()
         
         # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
-        loop.run_in_executor(None, queue_workflow)
+        loop.run_in_executor(None, queue_workflow_async)
         
         # 4. 立刻返回响应，告诉用户任务已在后台开始
         print("API 响应：已触发后台缓存工作流。")
