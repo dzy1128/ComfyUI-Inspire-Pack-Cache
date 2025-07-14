@@ -57,8 +57,10 @@ async def cache_determine(request):
     keys_not_exist_list = []
     isc = IsCached()
     for key in keys:
-        if not isc.doit(key,None):
+        if isc.doit(key,None) == False:
             keys_not_exist_list.append(key)
+    cache_str = ','.join([str(item) for item in keys_not_exist_list])
+    print(f"缓存信息：{cache_str}")
     if keys_not_exist_list :
         keys_not_exist_list.append(key)
         # 2. 获取当前的事件循环
@@ -69,7 +71,7 @@ async def cache_determine(request):
         
         # 4. 立刻返回响应，告诉用户任务已在后台开始
         print("API 响应：已触发后台缓存工作流。")
-        cache_str = ','.join([str(item) for item in keys_not_exist_list])
+        
         return web.Response(text=f"未查询到缓存{cache_str}，已经自动在后台执行缓存模型工作流。", status=200)
     else:
         return web.Response(text="缓存已加载。", status=200)
