@@ -11,6 +11,7 @@ from .inspire_workflow_trigger import queue_workflow_async
 import logging
 import threading
 import asyncio
+import traceback
 
 max_seed = 2**32 - 1
 
@@ -49,13 +50,22 @@ def cache_refresh(request):
 #用于判断缓存是否存在
 @server.PromptServer.instance.routes.get("/inspire/cache/determine")
 async def cache_determine(request):
-    key = "flux_vae"
-    cache_text = backend_support.ShowCachedInfo.get_data()
-    if key in cache_text:
-        return web.Response(text="缓存已加载。",status=200)
-    else:
-        queue_workflow_async()
-        return web.Response(text="未检测到缓存，已自动执行工作流",status=200)
+    try:
+        print("=== 进入 cache_determine 接口 ===")
+        key = "flux_vae"
+        cache_text = backend_support.ShowCachedInfo.get_data()
+        print(f"缓存检查结果: {key in cache_text}")
+        
+        if key in cache_text:
+            return web.Response(text="缓存已加载。", status=200)
+        else:
+            print("开始执行异步工作流...")
+            queue_workflow_async()
+            return web.Response(text="未查询到缓存，正在后台执行缓存模型工作流。", status=200)
+    except Exception as e:
+        print(f"cache_determine 接口出错: {e}")
+        print(f"异常详情: {traceback.format_exc()}")
+        return web.Response(text=f"处理请求失败: {str(e)}", status=500)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
