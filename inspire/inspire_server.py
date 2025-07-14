@@ -12,6 +12,7 @@ import logging
 import threading
 import asyncio
 import traceback
+from .backend_support import cache
 
 max_seed = 2**32 - 1
 
@@ -53,20 +54,20 @@ async def cache_determine(request):
     key = "flux_vae"
     # 假设 backend_support.ShowCachedInfo.get_data() 是非阻塞的
     #cache_text = backend_support.ShowCachedInfo.get_data() 
-    cache_text = cache_refresh(request).text
-    
-    if key in cache_text:
-        return web.Response(text="缓存已加载。", status=200)
-    else:
-        # 2. 获取当前的事件循环
-        loop = asyncio.get_event_loop()
-        
-        # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
-        loop.run_in_executor(None, queue_workflow_async)
-        
-        # 4. 立刻返回响应，告诉用户任务已在后台开始
-        print("API 响应：已触发后台缓存工作流。")
-        return web.Response(text="未查询到缓存，已经自动在后台执行缓存模型工作流。", status=200)
+    #cache_text = cache_refresh(request).text
+    for k,_ in cache.items():
+        if key in k:
+            return web.Response(text="缓存已加载。", status=200)
+        else:
+            # 2. 获取当前的事件循环
+            loop = asyncio.get_event_loop()
+            
+            # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
+            loop.run_in_executor(None, queue_workflow_async)
+            
+            # 4. 立刻返回响应，告诉用户任务已在后台开始
+            print("API 响应：已触发后台缓存工作流。")
+            return web.Response(text="未查询到缓存，已经自动在后台执行缓存模型工作流。", status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
