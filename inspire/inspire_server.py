@@ -58,11 +58,11 @@ async def cache_determine(request):
     for key in keys:
         if key not in cache:
             keys_not_exist_list.append(key)
-    if not keys_not_exist_list:
+    if keys_not_exist_list :
         keys_not_exist_list.append(key)
         # 2. 获取当前的事件循环
         loop = asyncio.get_event_loop()
-            
+        
         # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
         loop.run_in_executor(None, queue_workflow_async)
         
