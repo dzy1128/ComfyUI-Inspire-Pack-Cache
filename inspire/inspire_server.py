@@ -47,7 +47,12 @@ def cache_refresh(request):
 #用于判断缓存是否存在
 @server.PromptServer.instance.routes.get("/inspire/cache/determine")
 def cache_determine(request):
-    return "flux_vae" in web.Response(text=backend_support.ShowCachedInfo.get_data(), status=200)
+    key = "flux_vae"
+    cache_text = backend_support.ShowCachedInfo.get_data()
+    if key in cache_text:
+        return web.Response(text=True,status=200)
+    else:
+        return web.Response(text=False,status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
