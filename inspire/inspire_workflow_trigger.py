@@ -1,6 +1,8 @@
 import requests
 import json
 import time
+import uuid
+import server
 
 # ComfyUI 服务器地址
 ip_addr = requests.get('https://ifconfig.me/ip').text.strip()
@@ -119,3 +121,42 @@ def queue_workflow_simple():
     except Exception as e:
         print(f"启动工作流出错: {e}")
         return False
+
+#comfyui内部原生方法
+def queue_workflow_internally():
+    """直接使用 ComfyUI 内部函数将工作流加入队列"""
+    try:
+        # 1. 加载工作流文件
+        with open(WORKFLOW_API_FILE, 'r') as f:
+            prompt = json.load(f)
+
+        # 2. 获取服务器实例和队列实例
+        p_server = server.PromptServer.instance
+        prompt_queue = p_server.prompt_queue
+
+        # 3. 为这个工作流生成一个唯一的 ID
+        prompt_id = str(uuid.uuid4())
+        
+        # 4. 准备要插入队列的数据
+        # 结构为 (execution_number, prompt_id, prompt, extra_data, client_address)
+        extra_data = {} # 额外数据，这里为空
+        # 从队列获取下一个执行编号
+        number = prompt_queue.get_latest_queue_number() + 1
+        
+        # 模拟一个来自服务器内部的请求地址
+        client_address = ("127.0.0.1", 0) 
+
+        # 5. 将任务放入队列
+        prompt_queue.put((number, prompt_id, prompt, extra_data, client_address))
+
+        print(f"内部调用：成功将工作流加入队列。工作流 ID: {prompt_id}")
+        return True, f"工作流已成功加入队列，ID: {prompt_id}"
+
+    except FileNotFoundError:
+        error_msg = f"错误：未找到工作流文件 {WORKFLOW_API_FILE}"
+        print(error_msg)
+        return False, error_msg
+    except Exception as e:
+        error_msg = f"内部调用时发生未知错误: {e}"
+        print(error_msg)
+        return False, error_msg

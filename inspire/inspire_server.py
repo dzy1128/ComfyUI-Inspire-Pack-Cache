@@ -7,7 +7,7 @@ from . import prompt_support
 from aiohttp import web
 from . import backend_support
 from .libs import common
-from .inspire_workflow_trigger import queue_workflow
+from .inspire_workflow_trigger import queue_workflow,queue_workflow_internally
 import logging
 import threading
 import asyncio
@@ -62,6 +62,7 @@ async def cache_determine(request):
         
         # 4. 立刻返回响应，告诉用户任务已在后台开始
         print("API 响应：已触发后台缓存工作流。")
+        return web.Response(text="未检测到缓存，已自动执行缓存模型工作流。",status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
