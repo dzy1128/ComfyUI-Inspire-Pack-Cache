@@ -3,12 +3,14 @@ import json
 import time
 import uuid
 import server
+import os
 
 # ComfyUI 服务器地址
 ip_addr = requests.get('https://ifconfig.me/ip').text.strip()
 SERVER_ADDRESS = ip_addr + ":8188"
 # 你的工作流 API JSON 文件路径
 WORKFLOW_API_FILE = "./workflows/缓存模型.json"
+
 
 def queue_prompt(prompt_workflow):
     """向 ComfyUI API 发送请求"""
@@ -23,6 +25,7 @@ def queue_prompt(prompt_workflow):
         return None
 
 def queue_workflow():
+    p = os.getcwd()
     # 等待 ComfyUI 服务器启动
     print("等待 ComfyUI 服务器准备就绪...")
     while True:
@@ -39,7 +42,7 @@ def queue_workflow():
         with open(WORKFLOW_API_FILE, 'r') as f:
             workflow = json.load(f)
     except FileNotFoundError:
-        print(f"错误：未找到工作流文件 {WORKFLOW_API_FILE}")
+        print(f"错误：{p}未找到工作流文件 {WORKFLOW_API_FILE}")
         return
 
     # 将工作流添加到队列
