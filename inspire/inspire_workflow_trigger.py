@@ -42,7 +42,7 @@ def queue_workflow():
         with open(WORKFLOW_API_FILE, 'r') as f:
             workflow = json.load(f)
     except FileNotFoundError:
-        print(f"错误：{p}未找到工作流文件 {WORKFLOW_API_FILE}")
+        print(f"错误：{p}未找到工作流文件 {WORKFLOW_API_FILE}" + p)
         return
 
     # 将工作流添加到队列
