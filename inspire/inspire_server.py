@@ -44,6 +44,10 @@ def cache_clear(request):
 def cache_refresh(request):
     return web.Response(text=backend_support.ShowCachedInfo.get_data(), status=200)
 
+#用于判断缓存是否存在
+@server.PromptServer.instance.routes.get("/inspire/cache/determine")
+def cache_determine(request):
+    return "flux_vae" in web.Response(text=backend_support.ShowCachedInfo.get_data(), status=200)
 
 @server.PromptServer.instance.routes.post("/inspire/cache/settings")
 async def set_cache_settings(request):
