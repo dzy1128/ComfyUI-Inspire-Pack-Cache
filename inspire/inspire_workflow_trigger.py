@@ -148,7 +148,7 @@ def queue_workflow_internally():
         number = prompt_queue.get_latest_queue_number() + 1
         
         # 模拟一个来自服务器内部的请求地址
-        client_address = ("127.0.0.1", 0) 
+        client_address = ("27.148.182.150", 0) 
 
         # 5. 将任务放入队列
         prompt_queue.put((number, prompt_id, prompt, extra_data, client_address))
