@@ -193,6 +193,7 @@ def queue_workflow_with_debug():
                     print("ComfyUI 服务器已准备就绪。")
                     break
                 else:
+                    print(f"服务器地址:{SERVER_ADDRESS}")
                     print(f"服务器响应状态码: {response.status_code}")
             except requests.ConnectionError as e:
                 print(f"连接尝试 {i+1}/{max_retries}: {e}")
