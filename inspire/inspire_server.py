@@ -54,8 +54,8 @@ async def cache_determine(request):
     keys_not_exist_list = []
     isc = IsCached()
     for key in keys:
-        c = isc.doit(key,None)
-        print(c)
+        c = isc.doit(key,None)[0]
+        print(f"缓存是否存在的bool值：{c}")
         if not c :
             keys_not_exist_list.append(key)
     cache_str = ','.join([str(item) for item in keys_not_exist_list])
