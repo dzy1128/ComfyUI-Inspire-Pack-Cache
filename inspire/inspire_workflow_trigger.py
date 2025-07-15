@@ -6,12 +6,30 @@ import server
 import os
 import threading
 import traceback
+import socket
+
+#获取本机局域网ip
+def get_local_ip():
+    """
+    通过创建socket连接获取本机IP地址
+    这种方法即使在使用代理的情况下也能获取到真实IP
+    """
+    try:
+        # 创建一个socket连接，连接到一个外部服务器（这里使用Google的DNS服务器）
+        # 这不会发送实际数据，只是建立连接
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception as e:
+        print(f"获取IP地址时出错: {e}")
+        return "无法获取IP地址"
 
 # ComfyUI 服务器地址
 #ip_addr = requests.get('https://ifconfig.me/ip').text.strip()
 #SERVER_ADDRESS = "27.148.182.150" + ":8188"
-SERVER_ADDRESS = os.environ.get("COMFY_ADDR")
-print(f"服务器地址0：{SERVER_ADDRESS}")
+SERVER_ADDRESS = get_local_ip()
 # 你的工作流 API JSON 文件路径
 WORKFLOW_API_FILE = "user/default/workflows/api_workflows/缓存模型.json"
 
