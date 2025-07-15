@@ -2,7 +2,6 @@ import json
 import os
 from .libs import common
 import sys
-sys.path.append("/data/workspace/ComfyUI")
 
 import folder_paths
 import nodes
