@@ -11,6 +11,7 @@ import traceback
 #ip_addr = requests.get('https://ifconfig.me/ip').text.strip()
 #SERVER_ADDRESS = "27.148.182.150" + ":8188"
 SERVER_ADDRESS = os.environ.get("COMFY_ADDR")
+print(f"服务器地址0：{SERVER_ADDRESS}")
 # 你的工作流 API JSON 文件路径
 WORKFLOW_API_FILE = "user/default/workflows/api_workflows/缓存模型.json"
 
