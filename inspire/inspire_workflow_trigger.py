@@ -27,9 +27,8 @@ def get_local_ip():
         return "无法获取IP地址"
 
 # ComfyUI 服务器地址
-#ip_addr = requests.get('https://ifconfig.me/ip').text.strip()
-#SERVER_ADDRESS = "27.148.182.150" + ":8188"
-SERVER_ADDRESS = get_local_ip()
+ip_addr = get_local_ip()
+SERVER_ADDRESS = ip_addr + ":8188"
 # 你的工作流 API JSON 文件路径
 WORKFLOW_API_FILE = "user/default/workflows/api_workflows/缓存模型.json"
 
