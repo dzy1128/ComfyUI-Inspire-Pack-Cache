@@ -467,7 +467,7 @@ class LoadLoraShared(nodes.LoraLoaderModelOnly):
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "model": ("MODEL",),
-                              "lora_name": (folder_paths.get_filename_list("loras")),
+                              "lora_name": (folder_paths.get_filename_list("loras"),{"tooltip": "Diffusion Model Name"}),
                               "strength_model": ("FLOAT", {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01}),
                               "key_opt": ("STRING", {"multiline": False, "placeholder": "If empty, use 'model_name' as the key."}),
                               "mode": (['Auto', 'Override Cache', 'Read Only'],),
