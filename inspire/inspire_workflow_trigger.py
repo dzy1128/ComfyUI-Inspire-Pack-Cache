@@ -29,16 +29,19 @@ def get_local_ip():
 # ComfyUI 服务器地址
 ip_addr = get_local_ip()
 SERVER_ADDRESS = ip_addr + ":8188"
+#SERVER_ADDRESS2 = ip_addr + ":8288"
 # 你的工作流 API JSON 文件路径
 WORKFLOW_API_FILE = "user/default/workflows/api_workflows/缓存模型.json"
 
 
-def queue_prompt(prompt_workflow):
+def queue_prompt(prompt_workflow, server_address = None):
     """向 ComfyUI API 发送请求"""
     try:
+        if server_address is None:
+            server_address = SERVER_ADDRESS
         p = {"prompt": prompt_workflow}
         data = json.dumps(p).encode('utf-8')
-        req = requests.post(f"http://{SERVER_ADDRESS}/prompt", data=data)
+        req = requests.post(f"http://{server_address}/prompt", data=data)
         req.raise_for_status() # 如果请求失败则抛出异常
         return req.json()
     except requests.exceptions.RequestException as e:
@@ -129,12 +132,14 @@ def queue_workflow():
         print("将工作流加入队列失败。")
 
 # 将 queue_workflow 修改为异步执行
-def queue_workflow_async():
+def queue_workflow_async(server_address=None):
+    if server_address is None:
+        server_address = SERVER_ADDRESS
     """异步执行工作流"""
     def run_workflow():
         try:
             print("开始执行缓存工作流...")
-            queue_workflow_with_debug()
+            queue_workflow_with_debug(server_address)
             print("缓存工作流执行完成")
         except Exception as e:
             print(f"执行缓存工作流时出错: {e}")
@@ -142,49 +147,12 @@ def queue_workflow_async():
     thread = threading.Thread(target=run_workflow, daemon=True)
     thread.start()
 
-#comfyui内部原生方法
-def queue_workflow_internally():
-    p = os.getcwd()
-    """直接使用 ComfyUI 内部函数将工作流加入队列"""
-    try:
-        # 1. 加载工作流文件
-        with open(WORKFLOW_API_FILE, 'r') as f:
-            prompt = json.load(f)
-
-        # 2. 获取服务器实例和队列实例
-        p_server = server.PromptServer.instance
-        prompt_queue = p_server.prompt_queue
-
-        # 3. 为这个工作流生成一个唯一的 ID
-        prompt_id = str(uuid.uuid4())
-        
-        # 4. 准备要插入队列的数据
-        # 结构为 (execution_number, prompt_id, prompt, extra_data, client_address)
-        extra_data = {} # 额外数据，这里为空
-        # 从队列获取下一个执行编号
-        number = prompt_queue.get_latest_queue_number() + 1
-        
-        # 模拟一个来自服务器内部的请求地址
-        client_address = ("27.148.182.150", 0) 
-
-        # 5. 将任务放入队列
-        prompt_queue.put((number, prompt_id, prompt, extra_data, client_address))
-
-        print(f"内部调用：成功将工作流加入队列。工作流 ID: {prompt_id}")
-        return True, f"工作流已成功加入队列，ID: {prompt_id}"
-
-    except FileNotFoundError:
-        error_msg = f"错误：{p},未找到工作流文件 {WORKFLOW_API_FILE}"
-        print(error_msg)
-        return False, error_msg
-    except Exception as e:
-        error_msg = f"内部调用时发生未知错误: {e}"
-        print(error_msg)
-        return False, error_msg
     
-def queue_workflow_with_debug():
+def queue_workflow_with_debug(server_address=None):
     """带详细调试信息的工作流执行函数"""
     print("=== 开始执行 queue_workflow_with_debug ===")
+    if server_address is None:
+            server_address = SERVER_ADDRESS
     
     try:
         # 获取服务器地址

@@ -7,11 +7,12 @@ from . import prompt_support
 from aiohttp import web
 from . import backend_support
 from .libs import common
-from .inspire_workflow_trigger import queue_workflow_async
+from .inspire_workflow_trigger import queue_workflow_async, get_local_ip
 import logging
 import asyncio
 from .backend_support import IsCached
 from .backend_support import cache
+import functools
 
 max_seed = 2**32 - 1
 
@@ -69,6 +70,40 @@ async def cache_determine(request):
         
         # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
         loop.run_in_executor(None, queue_workflow_async)
+        
+        # 4. 立刻返回响应，告诉用户任务已在后台开始
+        print("API 响应：已触发后台缓存工作流。")
+        
+        return web.Response(text=f"未查询到缓存{cache_str}，已经自动在后台执行缓存模型工作流。", status=200)
+    else:
+        return web.Response(text="缓存已加载。", status=200)
+    
+#用于判断缓存是否存在(8288端口)
+@server.PromptServer.instance.routes.get("/inspire/cache/determine2")
+async def cache_determine(request):
+    ip_addr = get_local_ip()
+    port_8288_addr = ip_addr + ":8288"
+    keys = ["flux_vae", "pulid_eva_clip", "pulid_face_analysis", "pulid_model"]
+    keys_not_exist_list = []
+    isc = IsCached()
+    for key in keys:
+        c = isc.doit(key,None)[0]
+        print(f"缓存是否存在的bool值：{c}，变量的类型为：{type(c)}")
+        if not c :
+            keys_not_exist_list.append(key)
+    print(f"缓存列表的长度1:{len(keys_not_exist_list)}")
+    cache_str = ','.join([str(item) for item in keys_not_exist_list])
+    print(f"缓存信息：{cache_str}")
+    if len(keys_not_exist_list) != 0 :
+        print(f"缓存列表的长度2:{len(keys_not_exist_list)}")
+        print(len(keys_not_exist_list))
+        # 2. 获取当前的事件循环
+        loop = asyncio.get_event_loop()
+        # 使用 functools.partial 创建一个新函数，预先设置参数
+        func = functools.partial(queue_workflow_async, server_address=port_8288_addr)
+        
+        # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
+        loop.run_in_executor(None, func)
         
         # 4. 立刻返回响应，告诉用户任务已在后台开始
         print("API 响应：已触发后台缓存工作流。")
