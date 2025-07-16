@@ -157,7 +157,7 @@ def queue_workflow_with_debug(server_address=None):
     try:
         # 获取服务器地址
         print("正在获取服务器地址...")
-        print(f"服务器地址: {SERVER_ADDRESS}")
+        print(f"服务器地址: {server_address}")
         
         # 检查工作流文件
         print(f"检查工作流文件: {WORKFLOW_API_FILE}")
@@ -174,12 +174,12 @@ def queue_workflow_with_debug(server_address=None):
         max_retries = 30
         for i in range(max_retries):
             try:
-                response = requests.get(f"http://{SERVER_ADDRESS}/queue", timeout=5)
+                response = requests.get(f"http://{server_address}/queue", timeout=5)
                 if response.status_code == 200:
                     print("ComfyUI 服务器已准备就绪。")
                     break
                 else:
-                    print(f"服务器地址:{SERVER_ADDRESS}")
+                    print(f"服务器地址:{server_address}")
                     print(f"服务器响应状态码: {response.status_code}")
             except requests.ConnectionError as e:
                 print(f"连接尝试 {i+1}/{max_retries}: {e}")
@@ -198,7 +198,7 @@ def queue_workflow_with_debug(server_address=None):
         print("提交工作流到队列...")
         p = {"prompt": workflow}
         data = json.dumps(p).encode('utf-8')
-        req = requests.post(f"http://{SERVER_ADDRESS}/prompt", data=data, timeout=10)
+        req = requests.post(f"http://{server_address}/prompt", data=data, timeout=10)
         req.raise_for_status()
         
         response_data = req.json()
@@ -209,7 +209,7 @@ def queue_workflow_with_debug(server_address=None):
         print("监控工作流执行状态...")
         for i in range(60):  # 最多监控60秒
             try:
-                queue_status = requests.get(f"http://{SERVER_ADDRESS}/queue", timeout=5)
+                queue_status = requests.get(f"http://{server_address}/queue", timeout=5)
                 queue_data = queue_status.json()
                 
                 running_items = queue_data.get('running_items', [])
