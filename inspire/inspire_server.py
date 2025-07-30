@@ -51,7 +51,7 @@ def cache_refresh(request):
 #用于判断缓存是否存在
 @server.PromptServer.instance.routes.get("/inspire/cache/determine")
 async def cache_determine(request):
-    keys = ["pulid_eva_clip", "pulid_face_analysis", "pulid_flux", "ben2_base"]
+    keys = ["pulid_eva_clip", "pulid_face_analysis", "pulid_model", "ben2_base"]
     keys_not_exist_list = []
     isc = IsCached()
     for key in keys:
@@ -83,7 +83,7 @@ async def cache_determine(request):
 async def cache_determine(request):
     ip_addr = get_local_ip()
     port_8288_addr = ip_addr + ":8288"
-    keys = ["pulid_eva_clip", "pulid_face_analysis", "pulid_flux", "ben2_base"]
+    keys = ["pulid_eva_clip", "pulid_face_analysis", "pulid_model", "ben2_base"]
     keys_not_exist_list = []
     isc = IsCached()
     for key in keys:
