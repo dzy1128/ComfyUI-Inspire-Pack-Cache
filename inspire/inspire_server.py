@@ -56,15 +56,10 @@ async def cache_determine(request):
     isc = IsCached()
     for key in keys:
         c = isc.doit(key,None)[0]
-        print(f"缓存是否存在的bool值：{c}，变量的类型为：{type(c)}")
         if not c :
             keys_not_exist_list.append(key)
-    print(f"缓存列表的长度1:{len(keys_not_exist_list)}")
     cache_str = ','.join([str(item) for item in keys_not_exist_list])
-    print(f"缓存信息：{cache_str}")
     if len(keys_not_exist_list) != 0 :
-        print(f"缓存列表的长度2:{len(keys_not_exist_list)}")
-        print(len(keys_not_exist_list))
         # 2. 获取当前的事件循环
         loop = asyncio.get_event_loop()
         
