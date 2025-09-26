@@ -61,13 +61,13 @@ async def cache_determine(request):
     cache_str = ','.join([str(item) for item in keys_not_exist_list])
     if len(keys_not_exist_list) != 0 :
         # 2. 获取当前的事件循环
-        loop = asyncio.get_event_loop()
+        #loop = asyncio.get_event_loop()
         
         # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
-        loop.run_in_executor(None, queue_workflow_async)
+        #loop.run_in_executor(None, queue_workflow_async)
         
         # 4. 立刻返回响应，告诉用户任务已在后台开始
-        print("API 响应：已触发后台缓存工作流。")
+        #print("API 响应：已触发后台缓存工作流。")
         
         return web.Response(text=f"未查询到缓存{cache_str}，已经自动在后台执行缓存模型工作流。", status=200)
     else:
@@ -93,15 +93,15 @@ async def cache_determine(request):
         #print(f"缓存列表的长度2:{len(keys_not_exist_list)}")
         #print(len(keys_not_exist_list))
         # 2. 获取当前的事件循环
-        loop = asyncio.get_event_loop()
+        #loop = asyncio.get_event_loop()
         # 使用 functools.partial 创建一个新函数，预先设置参数
-        func = functools.partial(queue_workflow_async, server_address=port_8288_addr)
+        #func = functools.partial(queue_workflow_async, server_address=port_8288_addr)
         
         # 3. 将阻塞的 queue_workflow 函数放入后台线程执行，并且"不等待"它完成
-        loop.run_in_executor(None, func)
+        #loop.run_in_executor(None, func)
         
         # 4. 立刻返回响应，告诉用户任务已在后台开始
-        print("API 响应：已触发后台缓存工作流。")
+        #print("API 响应：已触发后台缓存工作流。")
         
         return web.Response(text=f"未查询到缓存{cache_str}，已经自动在后台执行缓存模型工作流。", status=200)
     else:
